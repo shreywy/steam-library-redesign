@@ -34,8 +34,8 @@ svg.fill { fill: currentColor; stroke: none; }
 .desktop {
   position: fixed; inset: 0; overflow: hidden;
   background:
-    radial-gradient(60% 50% at 50% 62%, rgba(255, 255, 255, .55), transparent 70%),
-    linear-gradient(165deg, #eaf2fc 0%, #cfe0f6 40%, #a8c8f0 75%, #8ab4ea 100%);
+    radial-gradient(70% 60% at 50% 62%, rgba(30, 70, 150, .45), transparent 70%),
+    linear-gradient(165deg, #05080f 0%, #0a1426 45%, #0b1a35 75%, #081226 100%);
 }
 /* the "bloom": blurred conic petals masked into a soft flower */
 .desktop::before {
@@ -43,18 +43,18 @@ svg.fill { fill: currentColor; stroke: none; }
   width: 115vmin; height: 115vmin; transform: translate(-50%, -50%) rotate(-12deg);
   border-radius: 50%;
   background: conic-gradient(from 0deg,
-    #0a3ea8 0deg, #7fb2fa 22deg, #1656d0 45deg, #a9cdfd 68deg, #0e46b8 90deg, #78acf8 112deg,
-    #1a5bd6 135deg, #b3d4fe 158deg, #0b40ad 180deg, #84b6fa 202deg, #1450c8 225deg, #a2c9fd 248deg,
-    #0d44b4 270deg, #7aaef8 292deg, #1858d3 315deg, #aed1fe 338deg, #0a3ea8 360deg);
+    #06215e 0deg, #2f6fd6 22deg, #0a2a72 45deg, #4f8ef0 68deg, #071f58 90deg, #2b66cc 112deg,
+    #0b2d78 135deg, #5a97f2 158deg, #06215e 180deg, #3474dc 202deg, #0a2a72 225deg, #4a88ec 248deg,
+    #071f58 270deg, #2a64c8 292deg, #0b2d78 315deg, #5592f0 338deg, #06215e 360deg);
   -webkit-mask: radial-gradient(circle, #000 8%, rgba(0, 0, 0, .9) 30%, transparent 64%);
   mask: radial-gradient(circle, #000 8%, rgba(0, 0, 0, .9) 30%, transparent 64%);
-  filter: blur(14px) saturate(1.1);
-  opacity: .92;
+  filter: blur(16px) saturate(1.15);
+  opacity: .9;
 }
 .desktop::after {
   content: ""; position: absolute; left: 50%; top: 60%; width: 30vmin; height: 30vmin;
   transform: translate(-50%, -50%); border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, .85), rgba(190, 220, 255, .4) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(170, 205, 255, .55), rgba(80, 140, 240, .25) 40%, transparent 70%);
   filter: blur(10px);
 }
 
@@ -95,15 +95,15 @@ svg.fill { fill: currentColor; stroke: none; }
 .taskbar {
   position: absolute; left: 0; right: 0; bottom: 0; height: 48px; z-index: 30;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(238, 243, 250, .82); backdrop-filter: blur(24px) saturate(1.4);
-  border-top: 1px solid rgba(255, 255, 255, .6); color: #1a1a1a;
+  background: rgba(28, 31, 38, .86); backdrop-filter: blur(24px) saturate(1.4);
+  border-top: 1px solid rgba(255, 255, 255, .08); color: #f2f2f2;
 }
 .taskbar-center { display: flex; gap: 4px; }
 .tb-btn {
   width: 40px; height: 40px; border-radius: 4px; display: grid; place-items: center; position: relative;
   transition: background var(--t);
 }
-.tb-btn:hover { background: rgba(255, 255, 255, .7); }
+.tb-btn:hover { background: rgba(255, 255, 255, .08); }
 .tb-btn:active .steam-icon, .tb-btn:active .start-logo { transform: scale(.88); }
 .tb-search { width: 20px; height: 20px; }
 .start-logo { display: grid; grid-template-columns: 9px 9px; gap: 1.5px; transition: transform 120ms; }
@@ -114,16 +114,16 @@ svg.fill { fill: currentColor; stroke: none; }
 }
 .folder-icon::before { content: ""; position: absolute; left: 0; top: -3px; width: 9px; height: 4px; border-radius: 2px 2px 0 0; background: #e9a92f; }
 .tb-steam .steam-icon { transition: transform 120ms; }
-.tb-steam::after {
+.tb-app::after {
   content: ""; position: absolute; bottom: 2px; left: 50%; width: 6px; height: 3px; border-radius: 2px;
-  background: #8a8a8a; transform: translateX(-50%); transition: width var(--t), background var(--t);
+  background: #9a9a9a; transform: translateX(-50%); transition: width var(--t), background var(--t);
 }
-.tb-steam.active { background: rgba(255, 255, 255, .6); }
-.tb-steam.active::after { width: 16px; background: #0067c0; }
+.tb-app.active { background: rgba(255, 255, 255, .07); }
+.tb-app.active::after { width: 16px; background: #4cc2ff; }
 .taskbar-right { position: absolute; right: 8px; display: flex; align-items: center; gap: 2px; height: 100%; }
 .tray, .clock { height: 40px; padding: 0 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px; }
 .tray svg { width: 16px; height: 16px; stroke-width: 1.7; }
-.tray:hover, .clock:hover { background: rgba(255, 255, 255, .7); }
+.tray:hover, .clock:hover { background: rgba(255, 255, 255, .08); }
 .clock { flex-direction: column; justify-content: center; align-items: flex-end; gap: 0; font-size: 12px; line-height: 1.35; }
 
 /* ---------- Steam window ---------- */
@@ -133,12 +133,12 @@ svg.fill { fill: currentColor; stroke: none; }
   display: flex; flex-direction: column; overflow: hidden;
   background: var(--navy-3); color: var(--text-2); font-size: 14px;
   border-radius: 8px; border: 1px solid #000;
-  box-shadow: 0 24px 60px rgba(10, 30, 70, .45), 0 2px 8px rgba(0, 0, 0, .3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
   transform-origin: 50% 100%;
   transition: opacity 200ms var(--ease), transform 220ms var(--ease), top 200ms var(--ease), left 200ms var(--ease),
     right 200ms var(--ease), bottom 200ms var(--ease), border-radius 200ms, visibility 0s;
 }
-.window.maximized { top: 0; left: 0; right: 0; bottom: 48px; border-radius: 0; border-width: 0; }
+.window.maximized { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 48px !important; width: auto !important; height: auto !important; border-radius: 0; border-width: 0; }
 .window.minimized { opacity: 0; transform: translateY(45vh) scale(.3); visibility: hidden; pointer-events: none; transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 220ms; }
 .window.closed { opacity: 0; transform: scale(.96); visibility: hidden; pointer-events: none; transition-delay: 0s, 0s, 0s, 0s, 0s, 0s, 0s, 200ms; }
 
@@ -293,7 +293,8 @@ svg.fill { fill: currentColor; stroke: none; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 22px 18px; padding: 4px 28px 32px; }
 
 /* game tiles */
-.tile { display: flex; flex-direction: column; gap: 6px; position: relative; animation: tile-in 240ms var(--ease) both; animation-delay: calc(var(--i) * 22ms); }
+.tile { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.view.enter .tile { animation: tile-in 240ms var(--ease) both; animation-delay: calc(var(--i) * 22ms); }
 .tile .art-library {
   aspect-ratio: 2 / 3; border-radius: 4px; overflow: hidden; display: block;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
@@ -331,7 +332,6 @@ svg.fill { fill: currentColor; stroke: none; }
   display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 6px;
   background: linear-gradient(160deg, #2a3a4e, #1a2533); border: 1px solid #2c3d51;
   transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t);
-  animation: tile-in 240ms var(--ease) both; animation-delay: calc(var(--i) * 30ms);
 }
 .coll:hover, .coll:focus-visible { transform: translateY(-3px); border-color: rgba(102, 192, 244, .6); box-shadow: 0 8px 24px rgba(102, 192, 244, .18); outline: none; }
 .coll-art { display: flex; height: 96px; margin-bottom: 8px; }
@@ -445,7 +445,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .dlc-row {
   display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 4px;
   background: rgba(30, 44, 61, .8); border: 1px solid #2a3c51;
-  animation: slide-in 220ms var(--ease) both; animation-delay: calc(var(--i) * 40ms);
 }
 .dlc-row.missing { background: rgba(18, 25, 34, .7); border-style: dashed; }
 .dlc-name { flex: 1; font-size: 16px; color: #fff; }
@@ -454,17 +453,6 @@ svg.fill { fill: currentColor; stroke: none; }
 .dlc-status svg { width: 14px; height: 14px; }
 .dlc-status.ok { color: #a4d65e; background: rgba(117, 176, 34, .15); }
 .dlc-status.no { color: var(--dim); background: rgba(143, 152, 160, .1); }
-
-/* ---------- running screen ---------- */
-
-.running-page { position: absolute; inset: 0; display: grid; place-items: center; padding: 40px; overflow: hidden; }
-.running-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(30px) brightness(.35); transform: scale(1.1); }
-.running-card { position: relative; text-align: center; max-width: 560px; display: flex; flex-direction: column; align-items: center; }
-.running-art { width: 368px; height: 172px; border-radius: 6px; overflow: hidden; box-shadow: 0 16px 40px rgba(0, 0, 0, .6); margin-bottom: 20px; }
-.run-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 12px; background: rgba(117, 176, 34, .18); color: #a4d65e; font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-.running-card h1 { color: #fff; font-size: 30px; margin: 14px 0 6px; }
-.running-card p { margin: 0 0 22px; }
-.running-actions { display: flex; gap: 12px; }
 
 /* ---------- bottom bar ---------- */
 
@@ -591,3 +579,102 @@ svg.fill { fill: currentColor; stroke: none; }
 .modal .btn:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
 .game-page.not-installed .hero-art { filter: grayscale(.8) brightness(.75); transition: filter var(--t); }
 .shelf-row .tile-sub { white-space: normal; }
+
+.view.enter .coll { animation: tile-in 240ms var(--ease) both; animation-delay: calc(var(--i) * 30ms); }
+.view.enter .dlc-row { animation: slide-in 220ms var(--ease) both; animation-delay: calc(var(--i) * 40ms); }
+
+/* ---------- window frames: stacking, drag, resize ---------- */
+
+.win-frame { z-index: 10; }
+.win-frame.front { z-index: 12; }
+.drag-handle { cursor: default; }
+.rz { position: absolute; z-index: 5; }
+.rz-n, .rz-s { left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
+.rz-n { top: -3px; } .rz-s { bottom: -3px; }
+.rz-e, .rz-w { top: 8px; bottom: 8px; width: 6px; cursor: ew-resize; }
+.rz-e { right: -3px; } .rz-w { left: -3px; }
+.rz-ne, .rz-nw, .rz-se, .rz-sw { width: 12px; height: 12px; }
+.rz-ne { top: -3px; right: -3px; cursor: nesw-resize; }
+.rz-sw { bottom: -3px; left: -3px; cursor: nesw-resize; }
+.rz-nw { top: -3px; left: -3px; cursor: nwse-resize; }
+.rz-se { bottom: -3px; right: -3px; cursor: nwse-resize; }
+.maximized .rz { display: none; }
+/* while dragging: no position easing, no text selection, cursor stays put */
+body.dragging, body.dragging * { user-select: none; }
+body.dragging .win-frame { transition-property: opacity, transform, visibility !important; }
+body.dragging iframe, body.dragging .main { pointer-events: none; }
+body.moving * { cursor: default !important; }
+body.resizing-n *, body.resizing-s * { cursor: ns-resize !important; }
+body.resizing-e *, body.resizing-w * { cursor: ew-resize !important; }
+body.resizing-ne *, body.resizing-sw * { cursor: nesw-resize !important; }
+body.resizing-nw *, body.resizing-se * { cursor: nwse-resize !important; }
+
+/* ---------- game window ---------- */
+
+.gamewin {
+  position: absolute; left: calc(50% - 260px); top: 14%; width: 520px; height: 320px;
+  display: flex; flex-direction: column; overflow: visible;
+  background: #000; border-radius: 8px; box-shadow: 0 24px 60px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .1);
+  animation: win-open 220ms var(--ease) both;
+  transition: opacity 200ms var(--ease), transform 220ms var(--ease), visibility 0s;
+}
+.gamewin.minimized { opacity: 0; transform: translateY(40vh) scale(.3); visibility: hidden; pointer-events: none; transition-delay: 0s, 0s, 220ms; }
+.gamewin.closing { opacity: 0; transform: scale(.95); pointer-events: none; }
+.gw-title {
+  height: 32px; flex: none; display: flex; align-items: center; gap: 8px; padding-left: 10px;
+  background: #202020; color: #e8e8e8; font-size: 12.5px; border-radius: 8px 8px 0 0; user-select: none;
+}
+.gw-icon { width: 16px; height: 16px; border-radius: 3px; overflow: hidden; flex: none; }
+.gw-icon .art img { object-position: 20% 50%; }
+.gw-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gw-title .win-controls button { width: 42px; height: 32px; }
+.gw-title .win-controls .close { border-top-right-radius: 8px; }
+.gw-body { position: relative; flex: 1; min-height: 0; overflow: hidden; border-radius: 0 0 8px 8px; }
+.gw-art { position: absolute; inset: 0; }
+.gw-art img { animation: gw-zoom 14s ease-in-out infinite alternate; }
+.gw-overlay {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .85));
+}
+.gw-overlay strong { color: #fff; font-size: 18px; }
+.gw-time { display: flex; align-items: center; font-size: 12.5px; color: #cfd8e0; font-variant-numeric: tabular-nums; }
+.gw-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.tb-game-art { width: 22px; height: 28px; border-radius: 3px; overflow: hidden; display: block; box-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+#tb-game { animation: fade-in 200ms var(--ease) both; }
+
+/* ---------- taskbar reset button ---------- */
+
+.tb-reset {
+  position: absolute; left: 8px; height: 38px; padding: 0 12px; border-radius: 4px;
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: #f2f2f2;
+  background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
+  transition: background var(--t);
+}
+.tb-reset svg { width: 16px; height: 16px; }
+.tb-reset:hover { background: rgba(255, 255, 255, .12); }
+.tb-reset:active svg { transform: rotate(-90deg); transition: transform 150ms; }
+
+/* ---------- DLC install / remove ---------- */
+
+.dlc-size { margin-left: 10px; font-size: 12px; color: var(--dim); }
+.dlc-status { color: var(--text-2); background: rgba(143, 152, 160, .1); }
+.dlc-row .btn.small { min-width: 96px; justify-content: center; }
+.dlc-busy { display: flex; flex-direction: column; gap: 6px; width: 200px; }
+.dlc-busy-label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--blue); }
+.bar-fill.grow { animation: grow 1200ms linear both; }
+.dlc-row.flash { animation: flash 900ms var(--ease) both; }
+.toast.windows { background: rgba(43, 46, 54, .97); color: #d6d6d6; border-color: rgba(255, 255, 255, .08); }
+.toast.windows strong { color: #fff; }
+
+@keyframes grow { from { width: 0; } to { width: 100%; } }
+@keyframes flash { from { background: rgba(102, 192, 244, .22); border-color: var(--blue); } }
+@keyframes win-open { from { opacity: 0; transform: scale(.94); } }
+@keyframes gw-zoom { to { transform: scale(1.08); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gw-art img { animation: none !important; }
+}
+
+/* dark native scrollbars inside the app */
+.window, .gamewin, .modal { color-scheme: dark; scrollbar-color: #3d4a5a transparent; }

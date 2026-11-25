@@ -1,9 +1,10 @@
 'use strict';
 
-const STUB = 'This feature is under development in this prototype.';
+const STUB = 'This is not a part of this demo.';
 const DL_SECONDS = 8;          // simulated download length
 const LAUNCH_MS = 1600;        // "Launching..." state
 const UNINSTALL_MS = 1800;     // uninstall progress bar
+const DLC_MS = 1300;           // DLC install/remove bar
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -34,6 +35,8 @@ function freshState() {
     uninstalling: null,   // id
     shortcuts: [],        // desktop shortcuts (game ids)
     whatsNewOpen: false,
+    dlcBusy: null,        // { did, op: 'install' | 'remove' }
+    dlcFlash: null,       // DLC row to highlight after it changes
   };
 }
 
@@ -103,7 +106,6 @@ const ICON = {
   dlc: '<svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
   gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
   trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>',
-  ext: '<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>',
   back: '<svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
   check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
   chevron: '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
@@ -179,14 +181,11 @@ function emptyState(where) {
 }
 
 function renderMain(enter) {
-  let r = S.route;
-  // a "running" screen for a game that has stopped falls back to its page
-  if (r.view === 'running' && S.running?.id !== r.id) r = S.route = { view: 'game', id: r.id };
+  const r = S.route;
   const html = r.view === 'home' ? homeView()
     : r.view === 'list' ? listView()
     : r.view === 'collection' ? collectionView(r.cid)
     : r.view === 'dlc' ? dlcView(G(r.id))
-    : r.view === 'running' ? runningView(G(r.id))
     : gameView(G(r.id));
   const keepScroll = !enter;
   const y = mainEl.scrollTop;
@@ -288,7 +287,7 @@ function gameView(g) {
   const statusLine = {
     'not-installed': `<span class="dot grey"></span>Not installed · Needs ${gb(g.size)} of disk space`,
     installed: `<span class="dot green"></span>Installed on ${esc(drive(g.drive || 'C').name)} · ${gb(g.size)}`,
-    running: `<span class="dot green"></span>Running now`,
+    running: `<span class="dot green"></span>Running in its own window. Press STOP or close the game window to quit.`,
     launching: `<span class="dot green"></span>Starting ${esc(shortName(g))}…`,
     downloading: `<span class="dot blue"></span>Downloading to ${esc(drive(S.download?.drive || 'C').name)}. Play becomes available when the download finishes.`,
     paused: `<span class="dot blue"></span>Download paused. Press Resume to continue.`,
@@ -304,7 +303,7 @@ function gameView(g) {
         <button class="btn" data-action="stub" data-name="Properties">${ICON.gear} Properties</button>
         ${g.installed && !busy ? `<button class="btn danger-outline" data-action="uninstall" data-id="${g.id}">${ICON.trash} Uninstall</button>` : ''}
       </div>
-      <a class="store-link" href="https://store.steampowered.com/app/${g.id}" target="_blank" rel="noopener">Store Page ${ICON.ext}</a>
+      <button class="store-link" data-action="stub" data-name="Store Page">Store Page</button>
     </div>
     <div class="status-line">${statusLine}</div>
     <div class="stats">
@@ -327,31 +326,51 @@ function dlcView(g) {
       <div><h1 class="page-title">Owned DLC</h1>
       <p class="muted">${esc(g.title)} · ${dlc.length ? `You own ${owned} of ${dlc.length} add-ons` : 'No add-ons'}</p></div>
     </div>
-    ${dlc.length ? `<ul class="dlc-list">${dlc.map((d, i) => `<li class="dlc-row ${d.owned ? 'owned' : 'missing'}" style="--i:${i}">
-        <span class="dlc-name">${esc(d.title)}</span>
-        ${d.owned
-          ? `<span class="dlc-status ok">${ICON.check} Owned${g.installed ? ' · Installed with the game' : ''}</span>`
-          : `<span class="dlc-status no">${ICON.lock} Not owned</span>
-             <a class="store-link small" href="https://store.steampowered.com/app/${d.id}" target="_blank" rel="noopener">View in Store ${ICON.ext}</a>`}
+    ${dlc.length ? `<ul class="dlc-list">${dlc.map((d, i) => `<li class="dlc-row ${d.owned ? 'owned' : 'missing'} ${S.dlcFlash === d.id ? 'flash' : ''}" style="--i:${i}">
+        <span class="dlc-name">${esc(d.title)}${d.owned ? `<span class="dlc-size">${gb(d.size)}</span>` : ''}</span>
+        ${d.owned ? dlcControls(g, d) : `<span class="dlc-status no">${ICON.lock} Not owned</span>
+             <button class="store-link small" data-action="stub" data-name="Store">View in Store</button>`}
       </li>`).join('')}</ul>`
       : `<div class="empty big"><p>There is no DLC for ${esc(g.title)} in your library.</p></div>`}
   </div>`;
 }
 
-function runningView(g) {
-  return `<div class="running-page">
-    <div class="running-bg" style="background-image:url('assets/${g.id}_header.jpg')"></div>
-    <div class="running-card">
-      ${art(g, 'header', 'running-art')}
-      <span class="run-badge"><span class="dot green pulse"></span>Running</span>
-      <h1>${esc(g.title)} is running</h1>
-      <p class="muted">The game opened in its own window. Session time <span data-run-clock>${runClock()}</span></p>
-      <div class="running-actions">
-        <button class="btn big" data-action="open" data-id="${g.id}" data-focus>${ICON.back} Back to Library</button>
-        <button class="btn big stop-outline" data-action="stop" data-id="${g.id}">${ICON.stop} Stop game</button>
-      </div>
-    </div>
-  </div>`;
+function dlcControls(g, d) {
+  const busy = S.dlcBusy;
+  if (busy?.did === d.id) {
+    return `<span class="dlc-busy"><span class="dlc-busy-label">${busy.op === 'install' ? 'Installing…' : 'Removing…'}</span>
+      <span class="bar thin"><span class="bar-fill grow"></span></span></span>`;
+  }
+  if (!g.installed) return `<span class="dlc-status">${ICON.check} Owned · Installs with the game</span>`;
+  const dis = busy ? 'disabled' : '';
+  return d.installed
+    ? `<span class="dlc-status ok">${ICON.check} Owned · Installed</span>
+       <button class="btn small danger-outline" data-action="dlc-toggle" data-id="${g.id}" data-did="${d.id}" ${dis}>${ICON.trash} Remove</button>`
+    : `<span class="dlc-status">${ICON.check} Owned · Not installed</span>
+       <button class="btn small" data-action="dlc-toggle" data-id="${g.id}" data-did="${d.id}" ${dis}>${ICON.download} Install</button>`;
+}
+
+function toggleDlc(gid, did) {
+  const g = G(gid), d = g?.dlc?.find(x => x.id === did);
+  if (!d?.owned || !g.installed || S.dlcBusy) return;
+  if (S.running?.id === gid || S.launching === gid) { toast(`${shortName(g)} is running`, 'Stop the game before changing its DLC.'); return; }
+  const op = d.installed ? 'remove' : 'install';
+  const drv = drive(g.drive || 'C');
+  if (op === 'install' && drv.free < d.size) { toast('Not enough space', `${d.title} needs ${gb(d.size)} on ${drv.name}.`); return; }
+  S.dlcBusy = { did, op };
+  S.dlcFlash = null;
+  render();
+  after(DLC_MS, () => {
+    d.installed = op === 'install';
+    const delta = op === 'install' ? d.size : -d.size;
+    g.size += delta;
+    drv.free -= delta;
+    S.dlcBusy = null;
+    S.dlcFlash = did;
+    render();
+    toast(op === 'install' ? `${d.title} installed` : `${d.title} removed`,
+      op === 'install' ? `Added to ${shortName(g)} on ${drv.name}.` : `${gb(d.size)} freed. You still own it and can install it again.`, 'success');
+  });
 }
 
 function runClock() {
@@ -551,7 +570,7 @@ function play(id) {
   const g = G(id);
   if (!g?.installed || S.launching || S.uninstalling === id) return;
   if (S.running) {
-    if (S.running.id === id) { nav({ view: 'running', id }); return; }
+    if (S.running.id === id) { showGameWin(); return; }
     toast(`${shortName(G(S.running.id))} is already running`, 'Stop it before starting another game.');
     return;
   }
@@ -563,7 +582,8 @@ function play(id) {
     S.running = { id, start: Date.now() };
     g.lastPlayed = new Date().toISOString();
     S.runTimer = every(1000, () => $$('[data-run-clock]').forEach(e => e.textContent = runClock()));
-    nav({ view: 'running', id });
+    openGameWin(g);
+    render();
   });
 }
 
@@ -574,7 +594,8 @@ function stopGame() {
   g.playtime += mins / 60;
   stopTimer(S.runTimer);
   S.running = null;
-  if (S.route.view === 'running') { S.route = { view: 'game', id: g.id }; render({ enter: true }); } else render();
+  closeGameWin();
+  render();
   toast(`${g.title} closed`, `You played for ${mins} min. Play time updated.`);
 }
 
@@ -671,7 +692,7 @@ modalRoot.addEventListener('change', () => M?.handlers.change?.());
 
 const MENUS = {
   steam: [['Change Account…', 'stub', 'Change Account'], ['Go Offline…', 'stub', 'Offline mode'], ['Settings', 'stub', 'Settings'], ['-'], ['Reset demo', 'reset', '', 'Ctrl+Alt+0'], ['-'], ['Exit', 'close']],
-  view: [['Library', 'home'], ['Store', 'ext', 'https://store.steampowered.com/'], ['Community', 'ext', 'https://steamcommunity.com/'], ['-'], ['Downloads', 'stub', 'Downloads'], ['Big Picture Mode', 'stub', 'Big Picture Mode'], ['Small Mode', 'stub', 'Small Mode']],
+  view: [['Library', 'home'], ['Store', 'stub', 'Store'], ['Community', 'stub', 'Community'], ['-'], ['Downloads', 'stub', 'Downloads'], ['Big Picture Mode', 'stub', 'Big Picture Mode'], ['Small Mode', 'stub', 'Small Mode']],
   friends: [['View Friends List', 'stub', 'Friends'], ['Add a Friend…', 'stub', 'Friends'], ['Change Status', 'stub', 'Friends']],
   games: [['View Games Library', 'home'], ['Add a Non-Steam Game…', 'stub', 'Add a Game'], ['Activate a Product…', 'stub', 'Activate a Product']],
   help: [['Steam Support', 'stub', 'Steam Support'], ['Keyboard shortcuts', 'shortcuts'], ['About Steam', 'stub', 'About Steam']],
@@ -685,7 +706,7 @@ function openMenu(key, btn) {
   btn.classList.add('open');
   const r = btn.getBoundingClientRect();
   menuRoot.innerHTML = `<div class="dropdown" role="menu" style="left:${r.left}px;top:${r.bottom + 2}px">${MENUS[key].map(([label, action, arg = '', hint = '']) =>
-    label === '-' ? '<hr>' : `<button role="menuitem" data-action="${action}" data-name="${esc(arg)}" data-url="${esc(arg)}">${esc(label)}${hint ? `<kbd>${hint}</kbd>` : ''}</button>`).join('')}</div>`;
+    label === '-' ? '<hr>' : `<button role="menuitem" data-action="${action}" data-name="${esc(arg)}">${esc(label)}${hint ? `<kbd>${hint}</kbd>` : ''}</button>`).join('')}</div>`;
   $('.dropdown button', menuRoot)?.focus({ preventScroll: true });
 }
 function closeMenus() {
@@ -701,6 +722,7 @@ const isHidden = () => win.classList.contains('minimized') || win.classList.cont
 function showWindow() {
   win.classList.remove('minimized', 'closed');
   $('#tb-steam').classList.add('active');
+  bringToFront(win);
 }
 function minimizeWindow() {
   closeMenus();
@@ -723,6 +745,108 @@ function deskGame(id) {
   showWindow();
   nav({ view: 'game', id });
   play(id);
+}
+
+// ---------- moving, resizing and stacking windows ----------
+
+const MIN_SIZE = { 'steam-window': [760, 460], gamewin: [280, 200] };
+
+function addResizeHandles(el) {
+  el.insertAdjacentHTML('beforeend', ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
+    .map(d => `<div class="rz rz-${d}" data-edge="${d}"></div>`).join(''));
+}
+function bringToFront(el) {
+  $$('.win-frame').forEach(f => f.classList.toggle('front', f === el));
+}
+
+// Drag by a .drag-handle (title bars), resize by the edge handles. On the first drag the
+// window switches from CSS insets to explicit pixels, so it can then go anywhere.
+document.addEventListener('pointerdown', e => {
+  const frame = e.target.closest('.win-frame');
+  if (!frame) return;
+  bringToFront(frame);
+  const edge = e.target.closest('.rz')?.dataset.edge;
+  const onTitle = e.target.closest('.drag-handle') && !e.target.closest('button');
+  if (e.button !== 0 || frame.classList.contains('maximized') || (!edge && !onTitle)) return;
+  e.preventDefault();
+  closeMenus();
+  const r = frame.getBoundingClientRect();
+  Object.assign(frame.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, right: 'auto', bottom: 'auto' });
+  const [minW, minH] = MIN_SIZE[frame.id];
+  const sx = e.clientX, sy = e.clientY;
+  const floor = innerHeight - 48; // taskbar top
+  document.body.classList.add('dragging', edge ? `resizing-${edge}` : 'moving');
+  const move = ev => {
+    const dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (!edge) {
+      // keep part of the title bar on screen and above the taskbar
+      frame.style.left = `${Math.min(Math.max(r.left + dx, 100 - r.width), innerWidth - 100)}px`;
+      frame.style.top = `${Math.min(Math.max(r.top + dy, 0), floor - 32)}px`;
+      return;
+    }
+    let { left, top, width, height } = r;
+    if (edge.includes('e')) width = Math.max(minW, r.width + dx);
+    if (edge.includes('s')) height = Math.max(minH, Math.min(r.height + dy, floor - r.top));
+    if (edge.includes('w')) { width = Math.max(minW, r.width - dx); left = r.right - width; }
+    if (edge.includes('n')) { top = Math.max(0, Math.min(r.top + dy, r.bottom - minH)); height = r.bottom - top; }
+    Object.assign(frame.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` });
+  };
+  const up = () => {
+    document.body.className = '';
+    removeEventListener('pointermove', move);
+    removeEventListener('pointerup', up);
+    removeEventListener('pointercancel', up);
+  };
+  addEventListener('pointermove', move);
+  addEventListener('pointerup', up);
+  addEventListener('pointercancel', up);
+});
+
+// A running game gets its own small window and a taskbar button.
+function openGameWin(g) {
+  closeGameWin(true);
+  const el = document.createElement('section');
+  el.className = 'win-frame gamewin';
+  el.id = 'gamewin';
+  el.setAttribute('aria-label', g.title);
+  el.innerHTML = `<header class="gw-title drag-handle">
+      <span class="gw-icon">${art(g, 'header')}</span><span class="gw-name">${esc(g.title)}</span>
+      <div class="win-controls">
+        <button data-action="game-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+        <button data-action="stop" class="close" aria-label="Quit game"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+      </div>
+    </header>
+    <div class="gw-body">
+      ${art(g, 'header', 'gw-art')}
+      <div class="gw-overlay">
+        <strong>${esc(g.title)}</strong>
+        <span class="gw-time"><span class="dot green pulse"></span>Playing · <span data-run-clock>0:00</span></span>
+        <div class="gw-actions">
+          <button class="btn small" data-action="game-to-steam">${ICON.back} Back to Steam</button>
+          <button class="btn small" data-action="stop">${ICON.stop} Quit game</button>
+        </div>
+      </div>
+    </div>`;
+  addResizeHandles(el);
+  $('#desktop').appendChild(el);
+  bringToFront(el);
+  $('#tb-steam').insertAdjacentHTML('afterend',
+    `<button class="tb-btn tb-app active" id="tb-game" data-action="taskbar-game" aria-label="${esc(g.title)}" title="${esc(g.title)}"><span class="tb-game-art">${art(g, 'library')}</span></button>`);
+}
+function showGameWin() {
+  const gw = $('#gamewin');
+  if (!gw) return;
+  gw.classList.remove('minimized');
+  bringToFront(gw);
+}
+function closeGameWin(now) {
+  const gw = $('#gamewin');
+  $('#tb-game')?.remove();
+  if (!gw) return;
+  gw.id = '';
+  if (now) { gw.remove(); return; }
+  gw.classList.add('closing');
+  setTimeout(() => gw.remove(), 200);
 }
 
 // ---------- toasts ----------
@@ -757,6 +881,8 @@ function resetDemo() {
   if (M) { M.locked = false; closeModal(true); }
   closeMenus();
   S = freshState();
+  closeGameWin(true);
+  win.removeAttribute('style');
   showWindow();
   win.classList.remove('maximized');
   render({ enter: true, animateList: true });
@@ -786,7 +912,6 @@ const ACTIONS = {
   back: goBack,
   forward: goForward,
   stub: el => toast(el.dataset.name || 'Coming soon', STUB),
-  ext: el => window.open(el.dataset.url, '_blank', 'noopener'),
   reset: resetDemo,
   shortcuts: () => toast('Keyboard shortcuts', 'Esc closes dialogs, Enter confirms, Ctrl+Alt+0 resets the demo.'),
   minimize: minimizeWindow,
@@ -795,6 +920,17 @@ const ACTIONS = {
   'taskbar-steam': () => isHidden() ? showWindow() : minimizeWindow(),
   'taskbar-open': () => showWindow(),
   'desk-game': el => deskGame(+el.dataset.id),
+  'dlc-toggle': el => toggleDlc(+el.dataset.id, +el.dataset.did),
+  'game-min': () => $('#gamewin')?.classList.add('minimized'),
+  'taskbar-game': () => {
+    const gw = $('#gamewin');
+    if (gw) gw.classList.contains('minimized') ? showGameWin() : gw.classList.add('minimized');
+  },
+  'game-to-steam': () => {
+    $('#gamewin')?.classList.add('minimized');
+    showWindow();
+    if (S.running) nav({ view: 'game', id: S.running.id });
+  },
 };
 
 document.addEventListener('click', e => {
@@ -813,6 +949,7 @@ $('.menubar').addEventListener('mouseover', e => {
   if (b && openMenuKey && openMenuKey !== b.dataset.menu) openMenu(b.dataset.menu, b);
 });
 
+addResizeHandles(win);
 $('#titlebar').addEventListener('dblclick', e => {
   if (!e.target.closest('button')) win.classList.toggle('maximized');
 });

@@ -1,6 +1,6 @@
 // All fake data for the prototype. Edit freely; app.js clones it on load and on "Reset demo".
 
-const USER_NAME = 'maya_p';
+const USER_NAME = 'cps613_a4';
 
 // The prototype's "today", so Recent and dates stay stable whenever it is opened.
 const DEMO_TODAY = '2026-11-25';
@@ -10,9 +10,9 @@ const GAMES = [
   { id: 620,     title: 'Portal 2', dev: 'Valve', installed: false, size: 12.4, playtime: 0, lastPlayed: null, added: '2026-11-23', ach: [0, 51], tags: ['Puzzle', 'Co-op', 'Story Rich'] },
   { id: 489830,  title: 'The Elder Scrolls V: Skyrim Special Edition', short: 'Skyrim', dev: 'Bethesda Game Studios', installed: true, size: 14.8, playtime: 142.5, lastPlayed: '2026-11-24', added: '2024-12-20', ach: [41, 75], tags: ['RPG', 'Open World', 'Story Rich'],
     dlc: [
-      { id: 211720,  title: 'Dawnguard', owned: true },
-      { id: 213650,  title: 'Hearthfire', owned: true },
-      { id: 211722,  title: 'Dragonborn', owned: true },
+      { id: 211720,  title: 'Dawnguard', owned: true, installed: true, size: 0.9 },
+      { id: 213650,  title: 'Hearthfire', owned: true, installed: true, size: 0.2 },
+      { id: 211722,  title: 'Dragonborn', owned: true, installed: true, size: 0.7 },
       { id: 1746860, title: 'Skyrim Anniversary Upgrade', owned: false },
     ] },
   { id: 413150,  title: 'Stardew Valley', dev: 'ConcernedApe', installed: true, size: 0.6, playtime: 88.3, lastPlayed: '2026-11-22', added: '2023-03-02', ach: [27, 49], tags: ['Farming', 'Co-op', 'Relaxing'] },

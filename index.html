@@ -4,14 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Steam Library Redesign · CPS613 Group 25 prototype</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="desktop" id="desktop">
   <div class="desktop-icons" id="desktop-icons"></div>
 
-  <section class="window" id="steam-window" aria-label="Steam">
-    <header class="titlebar" id="titlebar">
+  <section class="win-frame window" id="steam-window" aria-label="Steam">
+    <header class="titlebar drag-handle" id="titlebar">
       <nav class="menubar" aria-label="Steam menu">
         <button class="menu-btn" data-menu="steam">Steam</button>
         <button class="menu-btn" data-menu="view">View</button>
@@ -43,9 +44,9 @@
         <button data-action="forward" id="nav-fwd" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
       <span class="wordmark">STEAM</span>
-      <a class="nav-link" href="https://store.steampowered.com/" target="_blank" rel="noopener">Store</a>
+      <button class="nav-link" data-action="stub" data-name="Store">Store</button>
       <button class="nav-link active" data-action="home">Library</button>
-      <a class="nav-link" href="https://steamcommunity.com/" target="_blank" rel="noopener">Community</a>
+      <button class="nav-link" data-action="stub" data-name="Community">Community</button>
       <button class="nav-link profile-link" data-action="stub" data-name="Profile"></button>
     </nav>
 
@@ -91,6 +92,9 @@
   </section>
 
   <div class="taskbar" role="toolbar" aria-label="Taskbar">
+    <button class="tb-reset" data-action="reset" title="Reset demo (Ctrl+Alt+0)">
+      <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg> Reset demo
+    </button>
     <div class="taskbar-center">
       <button class="tb-btn" data-action="stub" data-name="Start" aria-label="Start">
         <span class="start-logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -101,7 +105,7 @@
       <button class="tb-btn" data-action="stub" data-name="File Explorer" aria-label="File Explorer">
         <span class="folder-icon" aria-hidden="true"></span>
       </button>
-      <button class="tb-btn tb-steam running" id="tb-steam" data-action="taskbar-steam" aria-label="Steam">
+      <button class="tb-btn tb-app tb-steam" id="tb-steam" data-action="taskbar-steam" aria-label="Steam">
         <span class="steam-icon" aria-hidden="true"></span>
       </button>
     </div>
